@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="https://github.com/user-attachments/assets/9574a267-e880-4f3e-9f33-9f2c37bfbf11"  height="64"/>
 
 # Everything Quick Search
   
@@ -16,7 +17,7 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J61PAH6H)
 
 > [!important]
-> Everything64.dll has to be next to the executable and Everything service has to run!
+> Everything64.dll has to be next to the executable and Everything 1.4.1 service has to run!
 
 You can download the dll from here: https://www.voidtools.com/Everything-SDK.zip 
 
@@ -34,19 +35,22 @@ You can download the dll from here: https://www.voidtools.com/Everything-SDK.zip
 
 ## ⌨️ Shortcuts
 
-| Action          | Shortcut        | Description                             |
-| --------------- | --------------- | --------------------------------------- |
+| Action          | Shortcut        | Description                               |
+| --------------- | --------------- | ----------------------------------------- |
 | Switch Category | `ALT` + `1–8`     | Switch to a specific category by number |
-| Move Up         | `ALT` + `W` / `K` | Navigate upward in the  list            |
-| Move Down       | `ALT` + `S` / `J` | Navigate downward in the         list   |
+| Move Up         | `ALT` + `W` / `K` | Navigate upward in the list             |
+| Move Down       | `ALT` + `S` / `J` | Navigate downward in the list           |
+| Move Up / Down  | `↑` / `↓`         | Navigate upward or downward in the list |
 | Open            | `ENTER`           | Open selected folder / file             |
 
 
 ## 🚀 Quick Start
 
+
 1. [Download the latest release](https://github.com/PinchToDebug/EverythingQuickSearch/releases/latest/download/EverythingQuickSearch.exe)
-2. Make sure Everything64.dll is next to the exe
-3. Open the start menu and search
+2. Make sure Everything 1.4.1 service is running
+3. Make sure [Everything64.dll](https://www.voidtools.com/Everything-SDK.zip) is next to the exe
+4. Open the start menu and search
 
 
 ## 🤝 Contributing
