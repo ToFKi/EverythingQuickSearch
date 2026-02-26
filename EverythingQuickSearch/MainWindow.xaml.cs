@@ -87,7 +87,8 @@ namespace EverythingQuickSearch
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         [DllImport("user32.dll")]
-        static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+        static extern bool PostMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
         const int WM_CLOSE = 0x0010;
 
         [DllImport("shcore.dll")]
@@ -105,6 +106,21 @@ namespace EverythingQuickSearch
 
         #endregion
 
+        private static readonly HashSet<System.Windows.Forms.Keys> NonCharacterKeys = new()
+        {
+            System.Windows.Forms.Keys.Escape,
+            System.Windows.Forms.Keys.LWin,
+            System.Windows.Forms.Keys.RWin,
+            System.Windows.Forms.Keys.LMenu,
+            System.Windows.Forms.Keys.RMenu,
+            System.Windows.Forms.Keys.LControlKey,
+            System.Windows.Forms.Keys.RControlKey,
+            System.Windows.Forms.Keys.LShiftKey,
+            System.Windows.Forms.Keys.RShiftKey,
+            System.Windows.Forms.Keys.Tab,
+            System.Windows.Forms.Keys.Back,
+            System.Windows.Forms.Keys.CapsLock,
+        };
         private RegistryHelper reg = new RegistryHelper("EverythingQuickSearch");
         private string url = "https://api.github.com/repos/PinchToDebug/EverythingQuickSearch/releases/latest";
 
@@ -143,7 +159,9 @@ namespace EverythingQuickSearch
         CancellationTokenSource? _searchCts;
 
         private string _currentQuery = string.Empty;
-        private const int PageSize = 40;
+        private const int PageSize = 30;
+        string forwardText = "";
+
         // int _currentOffset = 0;
         // bool _hasMoreResults = true;
         private int _currentFileOffset = 0;
@@ -200,7 +218,7 @@ namespace EverythingQuickSearch
 
             m_GlobalHook = Hook.GlobalEvents();
             m_GlobalHook.KeyPress += GlobalHookKeyPress;
-
+            m_GlobalHook.KeyDown += M_GlobalHook_KeyDown;
             _winEventDelegate = new WinEventDelegate(WinEventProc);
             _hookForeground = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero,
             _winEventDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
@@ -244,13 +262,29 @@ namespace EverythingQuickSearch
             WindowBackgroundManager.UpdateBackground(UiApplication.Current.MainWindow, theme, WindowBackdropType.Acrylic);
             this.SetResourceReference(Button.BackgroundProperty, "ControlOnImageFillColorDefaultBrush");
         }
-        private void GlobalHookKeyPress(object? sender, System.Windows.Forms.KeyPressEventArgs e)
+
+        private void M_GlobalHook_KeyDown(object? sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (NonCharacterKeys.Contains(e.KeyCode) || e.KeyData.ToString() == "Tab, Alt")
+            {
+                return;
+            }
+            if (_lookForKeyDown)
+            {
+                PostMessage(_searchHwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+                e.SuppressKeyPress = true;
+                GlobalHookKeyPress(sender, null);
+            }
+        }
+
+        private void GlobalHookKeyPress(object? sender, System.Windows.Forms.KeyPressEventArgs? e)
         {
             if (!_lookForKeyDown)
             {
                 return;
             }
-            if (_lookForKeyDown && !_isVisible
+            if (_lookForKeyDown
+                && e != null
                 && e.KeyChar.ToString().Length > 0
                 && e.KeyChar != '\t'
                 && e.KeyChar.ToString() != "\u001b") // backspace char
@@ -258,8 +292,6 @@ namespace EverythingQuickSearch
 
                 Task.Run(() =>
                 {
-                    SendMessage(_searchHwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-
                     Dispatcher.Invoke(async () =>
                     {
                         //TODO: When EQS is window too small
@@ -275,29 +307,29 @@ namespace EverythingQuickSearch
                             this.Left += 12;
                         }
                         Debug.WriteLine("show");
-
                         this.Show();
-                        this.Activate();
-                        this.Focus();
-
-                        string forwardText;
                         if (e.KeyChar.ToString() == "\u0016") // paste (ctrl+v)
                         {
                             forwardText = Clipboard.GetText();
                         }
                         else
                         {
-                            forwardText = e.KeyChar.ToString();
+                            forwardText += e.KeyChar.ToString();
                         }
-                        SearchBarTextBox.Text = forwardText;
-                        SearchBarTextBox.Focus();
-                        SearchBarTextBox.CaretIndex = forwardText.Length;
-                        SearchBarTextBox.Focus();
 
-                        await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
-                        await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                        this.Activate();
-                        this.Focus();
+                        await Dispatcher.BeginInvoke(new Action(() => { }), DispatcherPriority.Render);
+                        await Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            this.Activate();
+                            SearchBarTextBox.Text += forwardText;
+                            SearchBarTextBox.CaretIndex = SearchBarTextBox.Text.Length;
+                            SearchBarTextBox.Focus();
+
+                            this.Activate();
+                            this.Focus();
+                          //  this.Topmost = true;
+
+                        }), DispatcherPriority.ApplicationIdle);
 
 
                     });
@@ -386,6 +418,7 @@ namespace EverythingQuickSearch
         {
 
             string searchText = ((TextBox)sender).Text;
+            forwardText = string.Empty;
             _searchCts?.Cancel();
             _searchCts = new CancellationTokenSource();
             CancellationToken token = _searchCts.Token;
