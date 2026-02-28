@@ -291,6 +291,7 @@ namespace EverythingQuickSearch
 
                             this.Activate();
                             this.Focus();
+                            _isShowing = true;
                             //  this.Topmost = true;
 
                         }), DispatcherPriority.ApplicationIdle);
@@ -353,11 +354,6 @@ namespace EverythingQuickSearch
             _isShowing = false;
             LoadUwpApps();
 
-        }
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-            _isShowing = true;
         }
 
         private static BitmapSource GetDefaultFolderIcon(int size)
