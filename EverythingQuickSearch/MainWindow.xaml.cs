@@ -2,6 +2,7 @@
 using Gma.System.MouseKeyHook;
 using IWshRuntimeLibrary;
 using Microsoft.WindowsAPICodePack.Shell;
+using StringMath;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -445,7 +446,7 @@ namespace EverythingQuickSearch
                 await LoadNextAppPageAsync(searchText, token);
                 if (AppItems.Count > 0)
                 {
-                    NoResultsGrid.Visibility = Visibility.Collapsed;
+                    NoSearchResultsGrid.Visibility = Visibility.Collapsed;
                     FilePreviewGrid.Visibility = Visibility.Collapsed;
                     FileDetails_DynamicScrollViewer.Visibility = Visibility.Visible;
 
@@ -455,7 +456,7 @@ namespace EverythingQuickSearch
 
                 if (FileItems.Count > 0 && AppItems.Count == 0)
                 {
-                    NoResultsGrid.Visibility = Visibility.Collapsed;
+                    NoSearchResultsGrid.Visibility = Visibility.Collapsed;
                     FilePreviewGrid.Visibility = Visibility.Visible;
                     FileDetails_DynamicScrollViewer.Visibility = Visibility.Visible;
 
@@ -464,8 +465,27 @@ namespace EverythingQuickSearch
                 else if (FileItems.Count == 0 && AppItems.Count == 0)
                 {
                     FileDetails_DynamicScrollViewer.Visibility = Visibility.Collapsed;
-                    NoResultsTextBlock.Text = $"No results found for \"{searchText}\"";
-                    NoResultsGrid.Visibility = Visibility.Visible;
+                    try
+                    {
+                        try
+                        {
+                            NoSearchResultsTextBlock.Text = "= " + searchText.Eval().ToString();
+                        }
+                        catch 
+                        {
+                            searchText = searchText.Substring(0, searchText.Length - 1);
+                            NoSearchResultsTextBlock.FontSize = 18;
+                            NoSearchResultsTextBlock.Text = "= " + searchText.Eval().ToString();
+                        }
+                        NoSearchResultsIcon.Symbol = SymbolRegular.Calculator20;
+                    }
+                    catch 
+                    {
+                        NoSearchResultsIcon.Symbol = SymbolRegular.Search24;
+                        NoSearchResultsTextBlock.FontSize = 16;
+                        NoSearchResultsTextBlock.Text = $"No results found for \"{searchText}\"";
+                    }
+                    NoSearchResultsGrid.Visibility = Visibility.Visible;
                 }
             }
             catch { }

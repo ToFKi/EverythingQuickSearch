@@ -340,15 +340,17 @@
                            Margin="10,3,20,3"
                            Width="400"/>
                 <Grid Grid.Row="2" 
-                      x:Name="NoResultsGrid"
+                      Visibility="Collapsed"
+                      x:Name="NoSearchResultsGrid"
                       Margin="10,3,20,3">
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Search24"
+                        <ui:SymbolIcon x:Name="NoSearchResultsIcon"
+                                       Symbol="Search24"
                                        FontSize="32"
                                        VerticalAlignment="Top"/>
                         <TextBlock FontSize="16"
                                    Margin="10,5"
-                                   x:Name="NoResultsTextBlock"/>
+                                   x:Name="NoSearchResultsTextBlock"/>
                     </StackPanel>
                 </Grid>
                 <ui:DynamicScrollViewer Grid.Row="2" 
