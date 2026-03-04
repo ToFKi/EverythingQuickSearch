@@ -1490,31 +1490,9 @@ namespace EverythingQuickSearch
             if (sender is Button btn && Enum.TryParse<Category>(btn.Tag?.ToString(), out var category))
             {
                 ChangeSelectedButton(btn);
-
-
                 _categoryFilter = SearchCategory.GetExtensions(category);
-                _searchCts?.Cancel();
-                _searchCts = new CancellationTokenSource();
-                CancellationToken token = _searchCts.Token;
-                _currentFileOffset = 0;
-                _currentAppOffset = 0;
-                FileItems.Clear();
-                _fileItemMap.Clear();
-                _hasMoreAppResults = true;
-                _hasMoreFileResults = true;
-                App_ScrollViewer.ScrollToTop();
-                scrollViewer.ScrollToTop();
-                if (AppItems.Count > 0)
-                {
-                    FilePreviewGrid.Visibility = Visibility.Collapsed;
-                    _ = SetPreviewItem(AppItems[0], false); // if awaited search is wrong
-                }
-                await LoadNextFilePageAsync(_categoryFilter + _currentQuery, token, true);
-                if (FileItems.Count > 0 && AppItems.Count == 0)
-                {
-                    FilePreviewGrid.Visibility = Visibility.Visible;
-                    _ = SetPreviewItem(FileItems[0], true);
-                }
+                _currentQuery = string.Empty;
+                SearchBarTextBox_TextChanged(SearchBarTextBox, null!);
             }
         }
 
@@ -1568,9 +1546,6 @@ namespace EverythingQuickSearch
                     menuitem.Icon.Foreground = _darkModeApplication ? Brushes.White : Brushes.Black;
                     _setSort = (int)menuitem.Tag * 2 - (_setSortAscending ? 1 : 0);
                     _currentQuery = string.Empty;
-                    _currentFileOffset = 0;
-                    FileItems.Clear();
-                    _fileItemMap.Clear();
                     SearchBarTextBox_TextChanged(SearchBarTextBox, null!);
 
                 };
