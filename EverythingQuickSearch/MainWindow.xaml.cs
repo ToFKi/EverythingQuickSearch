@@ -36,9 +36,11 @@ namespace EverythingQuickSearch
         private const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
         private const uint WINEVENT_OUTOFCONTEXT = 0;
 
+        private const int DWMWA_TRANSITIONS_FORCEDISABLED = 3;
+
         [SecurityCritical]
         [DllImport("dwmapi.dll", SetLastError = false, ExactSpelling = true)]
-        public static extern int DwmSetWindowAttribute(IntPtr hwnd, uint dwAttribute, IntPtr pvAttribute, int cbAttribute);
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, uint dwAttribute, ref int pvAttribute, int cbAttribute);
 
 
         private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType,
@@ -250,6 +252,13 @@ namespace EverythingQuickSearch
             base.OnSourceInitialized(e);
             this.Visibility = Visibility.Hidden;
             this.Top = 10000;
+
+            int disable = 1;
+            DwmSetWindowAttribute(new WindowInteropHelper(this).Handle,
+                DWMWA_TRANSITIONS_FORCEDISABLED,
+                ref disable,
+                sizeof(int));
+
             _everything = new EverythingService(this);
             LoadSearchIcon();
         }
@@ -383,7 +392,7 @@ namespace EverythingQuickSearch
                 Task.Run(() =>
                 {
                     SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, out originalAnimationState, 0);
-               
+
                 });
                 GetWindowRect(hwnd, out _searchHostRect);
                 _ = Task.Run(async () =>
@@ -1154,9 +1163,8 @@ namespace EverythingQuickSearch
         {
             // Remove harsh window shadow
             var hwnd = new WindowInteropHelper(this).Handle;
-            var attribute = GCHandle.Alloc((uint)4, GCHandleType.Pinned);
-            var result = DwmSetWindowAttribute(hwnd, (uint)33, attribute.AddrOfPinnedObject(), sizeof(uint));
-            attribute.Free();
+            int attr = 4;
+            DwmSetWindowAttribute(hwnd, 33, ref attr, sizeof(int));
 
             _taskbarRestartMessage = RegisterWindowMessage("TaskbarCreated");
             var hwndSource = HwndSource.FromHwnd(hwnd);
