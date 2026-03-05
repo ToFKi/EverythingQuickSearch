@@ -644,38 +644,23 @@ namespace EverythingQuickSearch
                     App_ScrollViewer.Height = Math.Min(AppItems.Count, 3) * 40;
                 });
 
-
-                _ = Task.Run(async () =>
+                _ = Parallel.ForEachAsync(tempList, new ParallelOptions
                 {
-                    var tasks = tempList.Select(async item =>
+                    MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1),
+                    CancellationToken = token
+                },
+                async (item, ct) =>
+                {
+                    if (!_appItemMap.TryGetValue(item.FullPath, out FileItem? target))
                     {
-                        await _thumbnailSemaphore.WaitAsync(token);
+                        return;
+                    }
+                    var thumb = Directory.Exists(item.FullPath)
+                        ? _defaultFolderIcon
+                        : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 32);
 
-                        try
-                        {
-                            token.ThrowIfCancellationRequested();
-
-                            if (!_appItemMap.TryGetValue(item.FullPath, out FileItem? target))
-                            {
-                                return;
-                            }
-                            var thumb = Directory.Exists(item.FullPath)
-                                ? _defaultFolderIcon
-                                : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 32);
-
-                            token.ThrowIfCancellationRequested();
-
-                            Application.Current.Dispatcher.Invoke(() => target.Thumbnail = thumb);
-                        }
-                        finally
-                        {
-                            _thumbnailSemaphore.Release();
-                        }
-                    });
-
-                    await Task.WhenAll(tasks);
+                    await Application.Current.Dispatcher.InvokeAsync(() => target.Thumbnail = thumb);
                 });
-
             }
             finally
             {
@@ -724,7 +709,7 @@ namespace EverythingQuickSearch
                 }
 
                 _hasMoreFileResults = tempList.Count >= PageSize;
-               
+
                 var existingPaths = new HashSet<string>(FileItems.Select(f => f.FullPath), StringComparer.OrdinalIgnoreCase);
 
                 await Application.Current.Dispatcher.InvokeAsync(() =>
@@ -754,35 +739,21 @@ namespace EverythingQuickSearch
                     }
                 });
 
-                _ = Task.Run(async () =>
+                _ = Parallel.ForEachAsync(tempList, new ParallelOptions
                 {
-                    var tasks = tempList.Select(async item =>
+                    MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1),
+                    CancellationToken = token
+                },
+                async (item, ct) =>
+                {
+                    if (!_fileItemMap.TryGetValue(item.FullPath, out FileItem? target))
                     {
-                        await _thumbnailSemaphore.WaitAsync(token);
-
-                        try
-                        {
-                            token.ThrowIfCancellationRequested();
-
-                            if (!_fileItemMap.TryGetValue(item.FullPath, out FileItem? target))
-                            {
-                                return;
-                            }
-                            var thumb = Directory.Exists(item.FullPath)
-                                ? _defaultFolderIcon
-                                : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 16);
-
-                            token.ThrowIfCancellationRequested();
-
-                            Application.Current.Dispatcher.Invoke(() => target.Thumbnail = thumb);
-                        }
-                        finally
-                        {
-                            _thumbnailSemaphore.Release();
-                        }
-                    });
-
-                    await Task.WhenAll(tasks);
+                        return;
+                    }
+                    var thumb = Directory.Exists(item.FullPath)
+                        ? _defaultFolderIcon
+                        : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 16);
+                    await Application.Current.Dispatcher.InvokeAsync(() => target.Thumbnail = thumb);
                 });
             }
             finally
