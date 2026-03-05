@@ -645,28 +645,36 @@ namespace EverythingQuickSearch
                 });
 
 
-                var tasks = tempList.Select(async item =>
+                _ = Task.Run(async () =>
                 {
-                    await _thumbnailSemaphore.WaitAsync();
-                    try
+                    var tasks = tempList.Select(async item =>
                     {
-                        if (!_appItemMap.TryGetValue(item.FullPath, out var target))
+                        await _thumbnailSemaphore.WaitAsync(token);
+
+                        try
                         {
-                            return;
+                            token.ThrowIfCancellationRequested();
+
+                            if (!_appItemMap.TryGetValue(item.FullPath, out FileItem? target))
+                            {
+                                return;
+                            }
+                            var thumb = Directory.Exists(item.FullPath)
+                                ? _defaultFolderIcon
+                                : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 32);
+
+                            token.ThrowIfCancellationRequested();
+
+                            Application.Current.Dispatcher.Invoke(() => target.Thumbnail = thumb);
                         }
+                        finally
+                        {
+                            _thumbnailSemaphore.Release();
+                        }
+                    });
 
-                        var thumb = Directory.Exists(item.FullPath)
-                            ? _defaultFolderIcon
-                            : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 32);
-
-                        target.Thumbnail = thumb;
-                    }
-                    finally
-                    {
-                        _thumbnailSemaphore.Release();
-                    }
+                    await Task.WhenAll(tasks);
                 });
-                await Task.WhenAll(tasks);
 
             }
             finally
@@ -744,30 +752,36 @@ namespace EverythingQuickSearch
                     }
                 });
 
-                var tasks = tempList.Select(async item =>
+                _ = Task.Run(async () =>
                 {
-                    await _thumbnailSemaphore.WaitAsync();
-
-                    try
+                    var tasks = tempList.Select(async item =>
                     {
-                        if (!_fileItemMap.TryGetValue(item.FullPath, out FileItem? target))
+                        await _thumbnailSemaphore.WaitAsync(token);
+
+                        try
                         {
-                            return;
+                            token.ThrowIfCancellationRequested();
+
+                            if (!_fileItemMap.TryGetValue(item.FullPath, out FileItem? target))
+                            {
+                                return;
+                            }
+                            var thumb = Directory.Exists(item.FullPath)
+                                ? _defaultFolderIcon
+                                : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 16);
+
+                            token.ThrowIfCancellationRequested();
+
+                            Application.Current.Dispatcher.Invoke(() => target.Thumbnail = thumb);
                         }
+                        finally
+                        {
+                            _thumbnailSemaphore.Release();
+                        }
+                    });
 
-                        var thumb = Directory.Exists(item.FullPath)
-                            ? _defaultFolderIcon
-                            : await thumbnailGenerator.GetThumbnailAsync(item.FullPath, 16);
-
-                        target.Thumbnail = thumb;
-                    }
-                    finally
-                    {
-                        _thumbnailSemaphore.Release();
-                    }
+                    await Task.WhenAll(tasks);
                 });
-
-                await Task.WhenAll(tasks);
             }
             finally
             {
