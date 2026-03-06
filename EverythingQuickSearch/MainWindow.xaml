@@ -52,6 +52,31 @@
             </Setter>
         </Style>
 
+        <Style x:Key="RoundedDropDownButtonButton" TargetType="Button">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+            <Setter Property="ToolTipService.BetweenShowDelay" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="{TemplateBinding Margin}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <DataTemplate x:Key="FileItemTemplate">
             <Border Margin="5,0,14,0" 
                     CornerRadius="5"
@@ -283,20 +308,37 @@
 
                 </StackPanel>
             </ScrollViewer>
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <ui:DropDownButton Style="{StaticResource RoundedDropDownButtonButton}"
+                                   MouseEnter="RoundedDropDownButtonButton_MouseEnter"
+                                   MouseLeave="RoundedDropDownButtonButton_MouseLeave"
+                                   BorderThickness="0"
+                                   HorizontalAlignment="Right">
 
-            <ui:Button Visibility="Visible"
-                       Click="GearButton_Click"
-                       Grid.Column="1"
-                       CornerRadius="0"
-                       Style="{StaticResource RoundedFilterButton}"
-                       Margin="0"
-                       HorizontalAlignment="Right">
+                    <ui:DropDownButton.Flyout>
+                        <ContextMenu x:Name="SortByContextMenu"/>
+                    </ui:DropDownButton.Flyout>
 
-                <ui:SymbolIcon Symbol="Settings24"
-                               FontSize="16"
-                               Margin="0"
-                               HorizontalAlignment="Right"/>
-            </ui:Button>
+                    <ui:SymbolIcon Symbol="ArrowSort20" 
+                                   FontSize="18"/>
+                </ui:DropDownButton>
+               
+                <ui:DropDownButton Style="{StaticResource RoundedDropDownButtonButton}"
+                                   MouseEnter="RoundedDropDownButtonButton_MouseEnter"
+                                   MouseLeave="RoundedDropDownButtonButton_MouseLeave"
+                                   BorderThickness="0"
+                                   Visibility="Collapsed"
+                                   HorizontalAlignment="Right">
+
+                    <ui:DropDownButton.Flyout>
+                        <ContextMenu x:Name="SortByContextMenu3"/>
+                    </ui:DropDownButton.Flyout>
+
+                    <ui:SymbolIcon Symbol="Settings20"
+                                   FontSize="18"/>
+                </ui:DropDownButton>
+            </StackPanel>
+
         </Grid>
 
 
@@ -622,7 +664,7 @@
                                      Content="Auto update"
                                      Checked="AutoUpdateToggle_CheckChanged" 
                                      Unchecked="AutoUpdateToggle_CheckChanged"/>
-                    
+
                     <ui:ToggleSwitch x:Name="AutorunToggle" 
                                Content="Start on login"
                                Checked="AutorunToggle_CheckChanged" 

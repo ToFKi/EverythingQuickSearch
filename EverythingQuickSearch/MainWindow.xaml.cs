@@ -267,6 +267,8 @@ namespace EverythingQuickSearch
             _winEventDelegate = new WinEventDelegate(WinEventProc);
             _hookForeground = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero,
             _winEventDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
+            Populate_Sortby_DropDownButton_ContextMenu();
+
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -1545,36 +1547,35 @@ namespace EverythingQuickSearch
                 SearchBarTextBox_TextChanged(SearchBarTextBox, null!);
             }
         }
-
-        private void GearButton_Click(object sender, RoutedEventArgs e)
+        private void Populate_Sortby_DropDownButton_ContextMenu()
         {
-            ContextMenu contextMenu = new ContextMenu();
             MenuItem sortByMenuItem = new MenuItem
             {
                 Header = "Sort by",
-                Height = 36,
+                Height = 28,
                 StaysOpenOnClick = true,
                 Icon = new SymbolIcon { Symbol = SymbolRegular.ArrowSort20 }
             };
-            MenuItem settingsMenuItem = new MenuItem
-            {
-                Header = "Settings",
-                Height = 36,
-                StaysOpenOnClick = true,
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 }
-            };
-
+          
             HashSet<String> sortValues = new HashSet<string> {"Name","Path","Size","Extension","Type","Date created",
                                                               "Date modified","Attributes","File list filename","Run count",
                                                               "Date recently changed","Date Accessed","Date run"};
             int sortId = 1;
+            int fontSize = 13;
+            int height = 31;
+            Thickness padding = new Thickness(0, 0, 8, 0);
 
             foreach (var item in sortValues)
             {
                 MenuItem menuitem = new MenuItem
                 {
-                    Header = item,
-                    Height = 32,
+                    Header = new System.Windows.Controls.TextBlock
+                    {
+                        Text = item,
+                        FontSize = fontSize,
+                        Padding = padding
+                    },
+                    Height = height,
                     StaysOpenOnClick = true,
                     Tag = sortId,
                     Icon = new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent, Filled = true }
@@ -1582,32 +1583,40 @@ namespace EverythingQuickSearch
 
                 if ((int)menuitem.Tag * 2 - (_setSortAscending ? 1 : 0) == _setSort)
                 {
-                    menuitem.Icon.Foreground = _darkModeApplication ? Brushes.White : Brushes.Black;
+                    menuitem.Icon.SetResourceReference(Button.ForegroundProperty, "TextFillColorPrimaryBrush");
                 }
                 menuitem.Click += (_, _) =>
                 {
-                    foreach (var item in contextMenu.Items)
+                    foreach (var item in SortByContextMenu.Items)
                     {
-                        if (item is MenuItem menui && sortValues.Contains(menui.Header))
+                        if (item is MenuItem menui && menui.Header is System.Windows.Controls.TextBlock tb && sortValues.Contains(tb.Text))
                         {
-                            menui.Icon.Foreground = Brushes.Transparent;
+                            if (menui.Icon is SymbolIcon icon)
+                            {
+                                icon.Foreground = Brushes.Transparent;
+                            }
                         }
                     }
-                    menuitem.Icon.Foreground = _darkModeApplication ? Brushes.White : Brushes.Black;
+                    menuitem.Icon.SetResourceReference(Button.ForegroundProperty, "TextFillColorPrimaryBrush");
                     _setSort = (int)menuitem.Tag * 2 - (_setSortAscending ? 1 : 0);
                     _currentQuery = string.Empty;
                     SearchBarTextBox_TextChanged(SearchBarTextBox, null!);
 
                 };
-                contextMenu.Items.Add(menuitem);
+                SortByContextMenu.Items.Add(menuitem);
 
                 sortId++;
             }
             MenuItem descendingMenuItem = new MenuItem();
             MenuItem ascendingMenuItem = new MenuItem
             {
-                Header = "Ascending",
-                Height = 32,
+                Header = new System.Windows.Controls.TextBlock
+                {
+                    Text = "Ascending",
+                    FontSize = fontSize,
+                    Padding = padding
+                },
+                Height = height,
                 StaysOpenOnClick = true,
                 Icon = new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent, Filled = true },
             };
@@ -1621,16 +1630,22 @@ namespace EverythingQuickSearch
                     FileItems.Clear();
                     _fileItemMap.Clear();
                     SearchBarTextBox_TextChanged(SearchBarTextBox, null!);
+                    
                     _setSort--;
-                    ascendingMenuItem.Icon.Foreground = _darkModeApplication ? Brushes.White : Brushes.Black;
+                    ascendingMenuItem.Icon.SetResourceReference(Button.ForegroundProperty, "TextFillColorPrimaryBrush");
                     descendingMenuItem.Icon.Foreground = Brushes.Transparent;
                 }
             };
 
             descendingMenuItem = new MenuItem
             {
-                Header = "Descending",
-                Height = 32,
+                Header = new System.Windows.Controls.TextBlock
+                {
+                    Text = "Descending",
+                    FontSize = fontSize,
+                    Padding = padding
+                },
+                Height = height,
                 StaysOpenOnClick = true,
                 Icon = new SymbolIcon { Symbol = SymbolRegular.CircleSmall20, Foreground = Brushes.Transparent, Filled = true },
             };
@@ -1646,17 +1661,25 @@ namespace EverythingQuickSearch
                     SearchBarTextBox_TextChanged(SearchBarTextBox, null!);
 
                     _setSort++;
-                    descendingMenuItem.Icon.Foreground = _darkModeApplication ? Brushes.White : Brushes.Black;
+                    descendingMenuItem.Icon.SetResourceReference(Button.ForegroundProperty, "TextFillColorPrimaryBrush");
                     ascendingMenuItem.Icon.Foreground = Brushes.Transparent;
                 }
             };
 
-            ascendingMenuItem.Icon.Foreground = !_setSortAscending ? Brushes.Transparent : _darkModeApplication ? Brushes.White : Brushes.Black;
-            descendingMenuItem.Icon.Foreground = _setSortAscending ? Brushes.Transparent : _darkModeApplication ? Brushes.White : Brushes.Black;
-            contextMenu.Items.Add(new Separator());
-            contextMenu.Items.Add(ascendingMenuItem);
-            contextMenu.Items.Add(descendingMenuItem);
-            contextMenu.IsOpen = true;
+            if (_setSortAscending)
+            {
+                ascendingMenuItem.Icon.SetResourceReference(Button.ForegroundProperty, "TextFillColorPrimaryBrush");
+                descendingMenuItem.Icon.Foreground = Brushes.Transparent;
+            }
+            else
+            {
+                descendingMenuItem.SetResourceReference(Button.BackgroundProperty, "TextFillColorPrimaryBrush");
+                ascendingMenuItem.Icon.Foreground = Brushes.Transparent;
+            }
+
+            SortByContextMenu.Items.Add(new Separator());
+            SortByContextMenu.Items.Add(ascendingMenuItem);
+            SortByContextMenu.Items.Add(descendingMenuItem);
         }
 
         private void FilterButton_MouseEnter(object sender, MouseEventArgs e)
@@ -1692,6 +1715,17 @@ namespace EverythingQuickSearch
                 }
             }
         }
+        private void RoundedDropDownButtonButton_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((DropDownButton)sender).Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"];
+        }
+
+        private void RoundedDropDownButtonButton_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((DropDownButton)sender).Background = Brushes.Transparent;
+        }
+
+
         #region notifyicon
         private void AutorunToggle_CheckChanged(object sender, RoutedEventArgs e)
         {
@@ -1735,6 +1769,6 @@ namespace EverythingQuickSearch
 
         #endregion
 
-
+      
     }
 }
